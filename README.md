@@ -15,7 +15,7 @@ and keep history of previous groceries- allowing reuse for the next shopping tri
             Notify the user if current groceries do not meet set nutritional goals.
 ##  Dos:
         GUI:
-            tkinter (themes?)
+            tkinter (themes?) https://www.youtube.com/watch?v=mop6g-c5HEY
             PyQt5/6 
             Electron / webapp (web design made into a downloadable app) https://github.com/python-eel/Eel
         User Inputs:
