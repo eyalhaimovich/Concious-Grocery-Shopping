@@ -38,4 +38,14 @@ and keep history of previous groceries- allowing reuse for the next shopping tri
             (idea for converting app to setup wizard) https://www.youtube.com/watch?v=p3tSLatmGvU
 
 
+## Week 1 Meeting Goals:
+        BACK END
+        Set up Python file & API
+            * Make a class for foodType 
+            * Connect to database: https://fdc.nal.usda.gov/api-guide.html
 
+        FRONT END 
+        Set up basic GUI
+            * Enough to see what's going on for now
+            * Food input, Food quantity, submit button to save food & qauntaity in backend.
+        
