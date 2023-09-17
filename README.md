@@ -25,6 +25,8 @@ and keep history of previous groceries- allowing reuse for the next shopping tri
             float: TDEE how many calories should eat per day/week (diet goals)
         Food Class: 
             below values should ideally be found in a database API 
+            https://fdc.nal.usda.gov/api-guide.html
+            https://www.eatbydate.com/
             str: food name 
             str: expiration date (cooked / raw) 
             ints: calories, fat, carbs, protein
