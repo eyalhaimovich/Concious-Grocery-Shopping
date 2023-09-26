@@ -76,19 +76,17 @@ def callAPI(id, key):
             for eachDict in item['foodNutrients']:
                 nutrient_id = eachDict['nutrientId']
                 value = eachDict['value']
+                unit = eachDict['unitName']
                 if nutrient_id == macro_ids['protein']:
-                    macroValues[0] = value
+                    macroValues[0] = str(value) + ' ' + unit
                 elif nutrient_id == macro_ids['fat']:
-                    macroValues[1] = value
+                    macroValues[1] = str(value) + ' ' + unit
                 elif nutrient_id == macro_ids['carbs']:
-                    macroValues[2] = value
+                    macroValues[2] = str(value) + ' ' + unit
                 elif nutrient_id == macro_ids['calories']:
-                    macroValues[3] = value
+                    macroValues[3] = str(value) + ' ' + unit
             allMacros.append(macroValues)
-        print("All database entries for", id)
-        print("Protein|Fat|Carbs|Calories")
-        for i in allMacros:
-            print(i)
+
         return macroValues
     else:
         print("Request failed with status code:", response.status_code)
