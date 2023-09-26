@@ -38,7 +38,6 @@ def callAPI(id, key):
     response = requests.get(api_url)
     if response.status_code == 200:
         data = response.json()
-
         #TODO: FIND AND ADD UNITS TO EACH MACRO AND SAY PER HOW MUCH (i.e. serving size / 100grams)
 
         # way to remove excess data-- can adjust as needed
@@ -94,7 +93,7 @@ def callAPI(id, key):
 
 # using eggplant from: https://fdc.nal.usda.gov/fdc-app.html#/food-details/2636702/nutrients
 eggplant_id = "2636702"  # specific item
-food_name = "milk"  # generic item from database
+food_name = "apple"  # generic item from database
 
 # get macros by name or ID from API
 macros = callAPI(food_name, API_KEY)
