@@ -6,13 +6,12 @@ Define a food class and use API at https://fdc.nal.usda.gov/api-guide.html
 to find food and retrieve food information
 """
 
-
+API_KEY = "jyAqilW3drrzghDxACXD2KhJmdDljsgC3NNaCcas" #https://fdc.nal.usda.gov/api-spec/fdc_api.html
 class FoodItem:
     """
     params:
         str: name;
-        int: calories;
-        list: macros [protein, fat, carbs]
+        list: macros [protein, fat, carbs, calories]
     """
     def __init__(self, name, macros):
         self.name = name
@@ -27,44 +26,88 @@ class FoodItem:
                 f"\n\tCarbs: {self.macros[2]}")
 
 
-def callAPIbyId(id, key):
+def callAPI(id, key):
     """
-    call the FDC API using food ID and apiKey
+    call the FDC API using food ID/name and apiKey
     :param id: food id
     :param key: apiKey
-    :return: return data for item found
+    :return: macroValues
     """
-    api_url_id = f'https://api.nal.usda.gov/fdc/v1/foods/search?api_key={key}&query={id}'
-    response = requests.get(api_url_id)
+
+    api_url = f'https://api.nal.usda.gov/fdc/v1/foods/search?api_key={key}&query={id}'
+    response = requests.get(api_url)
     if response.status_code == 200:
         data = response.json()
-        food_data = (data["foods"][0]["foodNutrients"])  # type list with 1 entry [0] pulls the dict entry out of list
-        # access by list entry then dict entry within the list
-        # [0],[1],[2],[3] are protein, fat, carbs, calories. rest are fiber vitamins etc.
-        macroValues = [food_data[0]["value"], food_data[1]["value"], food_data[2]["value"], food_data[3]["value"]]
+
+        #TODO: FIND AND ADD UNITS TO EACH MACRO AND SAY PER HOW MUCH (i.e. serving size / 100grams)
+
+        # way to remove excess data-- can adjust as needed
+        # currently important part is only using foods with dataType 'SR Legacy'
+        food_items = []
+        wanted_keys = ['fdcId', 'dataType', 'foodNutrients', 'foodCategory']
+        for item in data['foods']:
+            if item.get('dataType') == 'SR Legacy':
+                new_dict = {}
+                # populate dict only with wanted keys
+                for key in wanted_keys:
+                    if key in item:
+                        new_dict[key] = item[key]
+                # append filtered dict to list
+                food_items.append(new_dict)
+
+        # do it again to only keep macros from 'foodNutrients', can add vitamins etc. if wanted
+        macro_ids = {'protein': 1003, 'fat': 1004, 'carbs': 1005, 'calories': 1008}  # global IDs for each macro
+        wanted_keys = ['nutrientId', 'nutrientName', 'unitName', 'value']
+        for item in food_items:
+            nutrients = []
+            for eachDict in item['foodNutrients']:
+                new_dict = {}
+                if eachDict.get('nutrientId') in macro_ids.values():
+                    for key in wanted_keys:
+                        if key in eachDict:
+                            new_dict[key] = eachDict[key]
+                    nutrients.append(new_dict)
+            item['foodNutrients'] = nutrients
+
+        # getting macro values
+        allMacros = []
+        for item in food_items:
+            macroValues = [0] * 4
+            for eachDict in item['foodNutrients']:
+                nutrient_id = eachDict['nutrientId']
+                value = eachDict['value']
+                if nutrient_id == macro_ids['protein']:
+                    macroValues[0] = value
+                elif nutrient_id == macro_ids['fat']:
+                    macroValues[1] = value
+                elif nutrient_id == macro_ids['carbs']:
+                    macroValues[2] = value
+                elif nutrient_id == macro_ids['calories']:
+                    macroValues[3] = value
+            allMacros.append(macroValues)
+        print("All database entries for", id)
+        print("Protein|Fat|Carbs|Calories")
+        for i in allMacros:
+            print(i)
         return macroValues
     else:
         print("Request failed with status code:", response.status_code)
 
 
-api_key = "jyAqilW3drrzghDxACXD2KhJmdDljsgC3NNaCcas" #https://fdc.nal.usda.gov/api-spec/fdc_api.html
-
-
 # using eggplant from: https://fdc.nal.usda.gov/fdc-app.html#/food-details/2636702/nutrients
-eggplant_id = 2636702
-eggplant_name = "EGGPLANT"
+eggplant_id = "2636702"  # specific item
+food_name = "milk"  # generic item from database
+
+# get macros by name or ID from API
+macros = callAPI(food_name, API_KEY)
+# use item name & macros to create a Food object
+eggplant = FoodItem(food_name, macros)
+# print food object's __str__
+print(eggplant)
 
 # Typical ways to call API by id/name
 # api_url_name = f'https://api.nal.usda.gov/fdc/v1/foods/search?api_key={api_key}&query={food_name}'
 # api_url_id = f'https://api.nal.usda.gov/fdc/v1/foods/search?api_key={api_key}&query={food_id}'
-
-# get macros by food ID from API
-macros = callAPIbyId(eggplant_id, api_key)
-# use item name & macros to create a Food object
-eggplant = FoodItem(eggplant_name, macros)
-# print food obj's __str__
-print(eggplant)
-
 
 # manual inputs
 # chicken = FoodItem("Chicken", 100, [20, 1, 5])
