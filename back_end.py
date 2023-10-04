@@ -40,11 +40,8 @@ class FoodItem:
         self.macros = macros
 
     def __str__(self):
-        return (f"Name: {self.name}"
-                f"\n\tCalories: {self.macros[3]}"
-                f"\n\tProtein: {self.macros[0]}"
-                f"\n\tFat: {self.macros[1]}"
-                f"\n\tCarbs: {self.macros[2]}")
+        food_entry = f"{self.name:<80}{self.macros[3]}\t{self.macros[0]}\t{self.macros[1]}\t{self.macros[2]}"
+        return food_entry
 
 
 def callAPI(food_name, API_key):
@@ -61,7 +58,7 @@ def callAPI(food_name, API_key):
     response = requests.get(api_url,
                             # params={ **parameters} if want to include parameters dictionary
                             params={'api_key': API_key, 'query': food_name,
-                                    'dataType': ['Foundation', 'SR Legacy'], 'pageSize': 10})
+                                    'dataType': ['Foundation', 'SR Legacy'], 'pageSize': 50})
     if response.status_code == 200:
         data = response.json()
 
@@ -183,11 +180,11 @@ food_name = "apple"
 
 # retrieve potential foods from food_name
 foodItem_list = callAPI(food_name, API_KEY)
-
+foodItem_list = sorted(foodItem_list, key=lambda item: item.name)
 # print all foods
 for food in foodItem_list:
     print(food, "\n")
 
 # print a chosen item in the list
-# TODO make a more sophisticated print to show all nutrients?
+# TODO make a more sophisticated print to show all nutrients for a specific item?
 print(foodItem_list[0])

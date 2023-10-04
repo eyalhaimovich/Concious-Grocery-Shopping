@@ -72,4 +72,14 @@ and keep history of previous groceries; allowing reuse for the next shopping tri
                 fliter by dataType to SR Legacy only
                 search by foodcategory chosen by user
                 new API call to return only specific item (by ID probably) when user clicks item
-                
+
+## Week 3 Meeting:
+    BACK END:
+        Satisfactory Functionality
+        Add option FoodCategory (default 'all') for user to choose
+        Figure out way to sort the food items
+        *FOR NOW WE'LL BE FOCUSING ON FRONT END*
+    FRONT END:
+        Outputting each food on it's own line in format name : [macros]
+            (adjust the output in back_end FoodItem __str__) * Eyal
+        Don't let users edit in textbox - Look into other ways to display food items * Christina
