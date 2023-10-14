@@ -32,7 +32,6 @@ class FoodItem:
         str: name: food name = food description from database
         int: id: food id
         list of lists: macros [protein, fat, carbs, calories]
-        TODO may want to change list to ints and add units later
     """
     def __init__(self, name, id, macros):
         self.name = name
@@ -40,25 +39,33 @@ class FoodItem:
         self.macros = macros
 
     def __str__(self):
-        food_entry = f"{self.name:<80}{self.macros[3]}\t{self.macros[0]}\t{self.macros[1]}\t{self.macros[2]}"
+        # clean up display for food names
+        if len(self.name) >= 30:
+            last_word = self.name[30:].split(" ")[0]
+            self.name = self.name[:30] + last_word
+            if self.name[-1] == ",":
+                self.name = self.name[:-1]
+            self.name += '...'
+        food_entry = f"{self.name:<50}{round(self.macros[3])} Calories\n"
+        #food_entry = f"{self.name:<50}{self.macros[3]}\t{self.macros[0]}\t{self.macros[1]}\t{self.macros[2]}\n"
         return food_entry
 
 
-def callAPI(food_name, API_key):
+def callAPI(API_key, food_name, food_category = 'All Categories'):
     """
     call the FDC API using food ID/name and apiKey
     :param food_name: food name
+    :param food_category: food_category = 'All'
     :param API_key: apiKey
     :return: macroValues
     TODO Add parameter for 'foodCategory?'
     """
-
     # get data from USDA database
     api_url = 'https://api.nal.usda.gov/fdc/v1/foods/search'
     response = requests.get(api_url,
                             # params={ **parameters} if want to include parameters dictionary
                             params={'api_key': API_key, 'query': food_name,
-                                    'dataType': ['Foundation', 'SR Legacy'], 'pageSize': 50})
+                                    'dataType': ['Foundation', 'SR Legacy'], 'pageSize': 500})
     if response.status_code == 200:
         data = response.json()
 
@@ -74,12 +81,16 @@ def callAPI(food_name, API_key):
                 print(j)'''
 
         # remove excess nutrient data from 'foodNutrients', can add vitamins etc. as needed
-        macro_names = ['Protein', 'Total lipid (fat)', 'Carbohydrate, by difference', 'Energy']
+        macro_names = ['Protein', 'Total lipid (fat)', 'Carbohydrate, by difference', 'Energy', 'Energy (Atwater General Factors)']
         wanted_keys = ['nutrientId', 'nutrientName', 'unitName', 'value']  # keys holding useful information
         food_items = filter_nutrients(food_items, wanted_keys, macro_names)
+        food_items = filter_calories(food_items)
+        if food_category != 'All Categories':
+            food_items = sort_food_category(food_items, food_category)
 
         '''for i in food_items:
-            print(i)'''
+            for j in i['foodNutrients']:
+                print(j)'''
 
         # get macro values for each food item
         # TODO: Might want to add "unit" to macros later to have a list of floats instead of strings
@@ -124,8 +135,6 @@ def filter_nutrients(items, keys, macro_names):
         nutrients = []
         for eachDict in item['foodNutrients']:
             new_dict = {}
-            x = eachDict.get('name')
-            f = macro_names
             if eachDict.get('nutrientName') in macro_names:
                 for key in keys:
                     if key in eachDict:
@@ -134,6 +143,38 @@ def filter_nutrients(items, keys, macro_names):
         item['foodNutrients'] = nutrients
 
     return items
+
+
+def filter_calories(food_items):
+    """
+    convert kJ to KCAL
+    """
+    for food in food_items:
+        for nutrient in food['foodNutrients']:
+            if nutrient['nutrientName'] == 'Energy (Atwater General Factors)':
+                nutrient['nutrientName'] = 'Energy'
+            if nutrient['unitName'] == 'kJ':
+                nutrient['value'] = round(nutrient['value'] / 4.184, 1)  # conv to KCAL
+                nutrient['unitName'] = 'KCAL'
+
+    return food_items
+
+
+def sort_food_category(food_items, food_category):
+    """
+    only display items from specified foot category
+    :param food_category:
+    :param food_items:
+    """
+    '''new_food_items = []
+    for food in food_items:
+        print(food)
+        if food['foodCategory'] in food_category:
+            food_items.pop(food)
+    return food_items'''
+
+    food_items = [food for food in food_items if food['foodCategory'] in food_category]
+    return food_items
 
 
 def get_macros(food_items):
@@ -147,15 +188,15 @@ def get_macros(food_items):
         for eachDict in item['foodNutrients']:
             nutrient_name = eachDict['nutrientName']
             value = eachDict['value']
-            unit = eachDict['unitName']
+            # unit = eachDict['unitName']
             if nutrient_name == 'Protein':
-                macro_values[0] = str(value) + ' ' + unit
+                macro_values[0] = value  #  str(value) + ' ' + unit
             elif nutrient_name == 'Total lipid (fat)':
-                macro_values[1] = str(value) + ' ' + unit
+                macro_values[1] = value  #  str(value) + ' ' + unit
             elif nutrient_name == 'Carbohydrate, by difference':
-                macro_values[2] = str(value) + ' ' + unit
+                macro_values[2] = value  #  str(value) + ' ' + unit
             elif nutrient_name == 'Energy':
-                macro_values[3] = str(value) + ' ' + unit
+                macro_values[3] = value  #  str(value) + ' ' + unit
         list_of_macros.append(macro_values)
 
     return list_of_macros
@@ -179,12 +220,12 @@ def set_food_output(food_items, list_of_macros):
 food_name = "apple"
 
 # retrieve potential foods from food_name
-foodItem_list = callAPI(food_name, API_KEY)
-foodItem_list = sorted(foodItem_list, key=lambda item: item.name)
+foodItem_list = callAPI(API_KEY, food_name, "Fruits and Fruit Juices")
+# foodItem_list = sorted(foodItem_list, key=lambda item: item.name)
 # print all foods
 for food in foodItem_list:
     print(food, "\n")
 
 # print a chosen item in the list
 # TODO make a more sophisticated print to show all nutrients for a specific item?
-print(foodItem_list[0])
+# print(foodItem_list[0])

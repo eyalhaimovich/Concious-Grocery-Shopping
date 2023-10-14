@@ -38,7 +38,7 @@ def dropdown_menu(event):
 
 if __name__ == "__main__":
     window = tk.Tk()
-    window.title("Concious Grocery Shopping")
+    window.title("Conscious Grocery Shopping")
     window.geometry("800x600")
     parent_tab = ttk.Notebook(window)
 
