@@ -63,8 +63,8 @@ macros = callAPIbyId(eggplant_id, api_key)
 # use item name & macros to create a Food object
 eggplant = FoodItem(eggplant_name, macros)
 # print food obj's __str__
-print(eggplant)
-
+print(eggplant.macros[2])
+print(callAPIbyId("pear", api_key))
 
 # manual inputs
 # chicken = FoodItem("Chicken", 100, [20, 1, 5])
