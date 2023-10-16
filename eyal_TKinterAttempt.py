@@ -1,5 +1,3 @@
-import combo
-
 from back_end import *
 import tkinter as tk
 from tkinter import *
