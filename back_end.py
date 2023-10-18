@@ -46,7 +46,7 @@ class FoodItem:
             if self.name[-1] == ",":
                 self.name = self.name[:-1]
             self.name += '...'
-        food_entry = f"{self.name:<50}{round(self.macros[3])} Calories\n"
+        food_entry = f"{self.name:<100}{round(self.macros[3])} Calories\n"
         #food_entry = f"{self.name:<50}{self.macros[3]}\t{self.macros[0]}\t{self.macros[1]}\t{self.macros[2]}\n"
         return food_entry
 
@@ -215,7 +215,7 @@ def set_food_output(food_items, list_of_macros):
         i += 1
     return list_of_foods
 
-
+'''
 # example eggplant from: https://fdc.nal.usda.gov/fdc-app.html#/food-details/2636702/nutrients
 food_name = "apple"
 
@@ -229,3 +229,4 @@ for food in foodItem_list:
 # print a chosen item in the list
 # TODO make a more sophisticated print to show all nutrients for a specific item?
 # print(foodItem_list[0])
+'''
