@@ -42,7 +42,9 @@ if __name__ == "__main__":
     window.title("Conscious Grocery Shopping")
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
-    window.geometry(f"{screen_width}x{screen_height-60}+0+0")
+    # window.geometry(f"{screen_width}x{screen_height}")
+    window.state('zoomed')
+    # window.attributes("-fullscreen", True)
     # parent window for the tabs
     parentTab = ttk.Notebook(window)
     #  TABS
@@ -65,7 +67,7 @@ if __name__ == "__main__":
     food_entry.grid(row=2, column=2, padx=10, pady=10)
 
     '''ListBox Configuration for search results'''
-    food_listbox = Listbox(search_Tab, height=40, width=80)
+    food_listbox = Listbox(search_Tab, height=50, width=80)
     food_listbox.grid(row=3, column=2, padx=10, pady=10)
     # "More Details" Button Config
     show_details_btn = Button(search_Tab, text='Show Selected', command=open_popup)
