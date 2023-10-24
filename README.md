@@ -83,3 +83,12 @@ and keep history of previous groceries; allowing reuse for the next shopping tri
         Outputting each food on it's own line in format name : [macros]
             (adjust the output in back_end FoodItem __str__) * Eyal
         Don't let users edit in textbox - Look into other ways to display food items * Christina
+## 10/22/23
+    BACK END:
+        Possibly add calendar event functions to back_end if it makes sense to do so. 
+    FRONT END:
+        Look into/research Tkcalendar library for expiraton date event reminders
+            --Create option for users to add an expiration date manually for a food item
+
+        General work on GUI improvements
+
