@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk, messagebox
 from back_end import *
-
+from tkcalendar import Calendar, DateEntry
 
 def call_backend():
     output = callAPI(API_KEY, food_entry.get(), food_category_val.get())
@@ -34,6 +34,30 @@ def insert_list():
 def delete_item():
     remove = shopping_Cart.curselection()
     shopping_Cart.delete(remove)
+
+
+def expiration_date():
+    popup = Toplevel(inventory)
+    popup.geometry("300x200")
+    popup.title("Expiration Date")
+    popup_label = Label(popup)
+    label_text = "Enter expiration date: "
+    popup_label.grid(row=1, column=2, padx=2, pady=2)
+    popup_label.config(text=label_text)
+    expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
+                           foreground='white', borderwidth=2, year=2023)
+    # expire_cal.get_date() gets date from DateEntry widget
+    expire_cal.grid(row=1, column=3, padx=2, pady=2)
+    submit_btn = Button(popup, text="Submit Date")
+    submit_btn.grid(row=2, column=3, padx=2, pady=2)
+    '''
+    Working on changing items in list box to include the expiration date
+    '''
+
+# send items in shopping cart to inventory tab
+def export_list():
+    for item in shopping_Cart.get(0, END):
+        current_items.insert("end", item)
 
 '''GUI Begins Here'''
 if __name__ == "__main__":
@@ -88,6 +112,9 @@ if __name__ == "__main__":
     # Delete item from shopping cart listbox
     delete = Button(search_Tab, text="Delete Item", command=delete_item)
     delete.grid(row=4, column=5, padx=10, pady=10)
+    # send whole list to inventory
+    export_btn = Button(search_Tab, text="Submit list to inventory", command=export_list)
+    export_btn.grid(row=4, column=6, padx=10, pady=10)
 
 
     '''///CURRENT INVENTORY WINDOW CONFIGURATION///'''
@@ -95,9 +122,13 @@ if __name__ == "__main__":
 
     inventory_Title: Label = ttk.Label(inventory, text="Your Current Pantry Items at Home")
     inventory_Title.grid(row=1, padx=5, pady=5)
-    # text box
-    current_items = Text(inventory, state='disabled', height=25, width=50)
+    # Changed textbox to ListBox
+    current_items = Listbox(inventory, height=25, width=75)
     current_items.grid(row=3, column=2, padx=10, pady=10)
+    current_items.grid(row=3, column=2, padx=10, pady=10)
+    # expiration date button config
+    expire_date_btn = Button(inventory, text="Set Expiration Date", command=expiration_date)
+    expire_date_btn.grid(row=3, column=3, padx=10, pady=10)
 
     #  display the tabs in the window
     parentTab.pack(expand=1, fill="both")
