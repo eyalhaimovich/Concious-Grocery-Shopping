@@ -46,34 +46,47 @@ def delete_item(event=None):
         shopping_Cart.delete(remove)
 
 
-def expiration_date():
+def expiration_date(event=None):
     """
     setting expiration dates
     """
-    popup = Toplevel(inventory)
-    popup.geometry("300x200")
-    popup.title("Expiration Date")
-    popup_label = Label(popup)
-    label_text = "Enter expiration date: "
-    popup_label.grid(row=1, column=2, padx=2, pady=2)
-    popup_label.config(text=label_text)
-    expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
-                           foreground='white', borderwidth=2, year=2023)
-    # expire_cal.get_date() gets date from DateEntry widget
-    expire_cal.grid(row=1, column=3, padx=2, pady=2)
-    submit_btn = Button(popup, text="Submit Date")
-    submit_btn.grid(row=2, column=3, padx=2, pady=2)
-    '''
-    Working on changing items in list box to include the expiration date
-    '''
+    if event:
+        # popup
+        popup = Toplevel(inventory)
+        popup.geometry("500x500")
+        popup.title("Expiration Date")
+        popup_label = Label(popup)
+        label_text = "Enter expiration date: "
+        popup_label.grid(row=1, column=2, padx=2, pady=2)
+        popup_label.config(text=label_text)
+        # date widget
+        expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
+                               foreground='white', borderwidth=2, year=2023)
+        expire_cal.grid(row=1, column=3, padx=2, pady=2)
+
+        # function to add date to item's str and close the pop on submit
+        def submit_and_close():
+            add_date(expire_cal.get())
+            popup.destroy()  # Close the popup
+        submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
+        submit_btn.grid(row=2, column=3, padx=2, pady=2)
+
+
+def add_date(date):
+    item = current_items.get(current_items.curselection()) + " " + date
+    index = current_items.curselection()
+    current_items.delete(index)
+    current_items.insert(index, item)
 
 
 def export_list():
     """
-    send items in shopping cart to inventory tab
+    send items in cart to inventory and clear cart
     """
     for item in shopping_Cart.get(0, END):
         current_items.insert("end", item)
+    shopping_Cart.delete(0, tk.END)
+    # TODO NOTIFY USER CART HAS BEEN SUBMITTED
 
 
 '''GUI Begins Here'''
@@ -110,8 +123,8 @@ if __name__ == "__main__":
     search_btn = Button(search_Tab, text='Submit', command=call_backend)
     search_btn.grid(row=1, column=1, pady=30, sticky="e")
     # Search Listbox
-    food_listbox = Listbox(search_Tab, height=30, width=50,
-                           bg="white", fg="orange", activestyle='none', font="Arial")
+    food_listbox = Listbox(search_Tab, height=45, width=90,
+                           bg="white", fg="orange", activestyle='none')
     food_listbox.grid(row=2, column=1, rowspan=2, padx=10, pady=10)
     food_listbox.bind("<Double 1>", add_item)
     # "More Details" Button Config
@@ -133,17 +146,16 @@ if __name__ == "__main__":
 
     '''INVENTORY TAB GUI'''
     parentTab.add(inventory, text='Current Inventory')
-
-    inventory_Title: Label = ttk.Label(inventory, text="Your Current Pantry Items at Home")
-    inventory_Title.grid(row=1, padx=5, pady=5)
-    # Changed textbox to ListBox
-    current_items = Listbox(inventory, height=25, width=75)
-    current_items.grid(row=3, column=2, padx=10, pady=10)
-    current_items.grid(row=3, column=2, padx=10, pady=10)
-    # expiration date button config
+    inventory_Title = ttk.Label(inventory, text="Your Current Pantry Items at Home")
+    inventory_Title.grid(row=1, rowspan=2, column=1, padx=5, pady=5)
+    # Currents items Listbox
+    current_items = Listbox(inventory, height=45, width=90)
+    current_items.grid(row=2, column=1, padx=10, pady=10)
+    current_items.bind("<Double 1>", expiration_date)
+    # expiration date button
     expire_date_btn = Button(inventory, text="Set Expiration Date", command=expiration_date)
-    expire_date_btn.grid(row=3, column=3, padx=10, pady=10)
-
+    expire_date_btn.grid(row=2, column=2, padx=10, pady=10)
     #  display the tabs in the window
     parentTab.pack(expand=1, fill="both")
+
     window.mainloop()
