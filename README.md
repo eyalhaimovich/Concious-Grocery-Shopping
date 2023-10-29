@@ -101,9 +101,14 @@ and keep history of previous groceries; allowing reuse for the next shopping tri
                 * When adding a date to a food item in current inventory,
                     it will append date to end of string instead of replacing or updating the date.
                 ex: Apple  35 Calories 10/28/23 10/29/23 10/28/23... and so on.
+                    *** Use backend to return 'name' 'calories' and 'date' as different objects to format
             Create function to save current inventory of foods to a text file
-                -- Create function so the file can be "uploaded" back into the app.
+                    *** Text file or sql? 
+                -- Create function so the app reads content of file upon starting.
             Create reminders for the expiration dates
                 --Have code check if expiration date(s) are current date or not
                 --Alert user if a food expires on current day or in the coming days
+                *** Maybe use background color for upcoming expiration i.e. yellow 1wk red 3days
             GUI improvements and styling
+                *** Possibly look into https://ttkbootstrap.readthedocs.io/en/latest/ 
+                    https://www.youtube.com/watch?v=0tM-l_ZsxjU https://www.youtube.com/watch?v=wuO-KMwXhP4
