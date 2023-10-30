@@ -96,7 +96,6 @@ and keep history of previous groceries; allowing reuse for the next shopping tri
         Date Entry widget created to add dates to food items
         GUI improvements on Search/Shopping Cart window
     NEXT TASKS: 
-        FRONT END:
             Issues to solve: 
                 * When adding a date to a food item in current inventory,
                     it will append date to end of string instead of replacing or updating the date.
@@ -112,3 +111,4 @@ and keep history of previous groceries; allowing reuse for the next shopping tri
             GUI improvements and styling
                 *** Possibly look into https://ttkbootstrap.readthedocs.io/en/latest/ 
                     https://www.youtube.com/watch?v=0tM-l_ZsxjU https://www.youtube.com/watch?v=wuO-KMwXhP4
+            Make Python file into a .exe file
