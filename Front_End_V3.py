@@ -4,16 +4,22 @@ from tkinter import *
 from tkinter import ttk
 from tkcalendar import Calendar, DateEntry
 from back_end import *
+from datetime import datetime
+
+# get current day
+curr_day = datetime.now()
+curr_date = curr_day.strftime("%m/%d/%Y")
 
 
 def call_backend():
     """
     when called fills listbox up with items retrieved from back_end.py
     """
-    output = callAPI(API_KEY, food_entry.get(), food_category_val.get())
+    global api_foods
+    api_foods = callAPI(API_KEY, food_entry.get(), food_category_val.get())
     food_listbox.delete(0, END)
-    for i in output:
-        food_listbox.insert('end', i)
+    for food in api_foods:
+        food_listbox.insert('end', food)
 
 
 def open_popup():
@@ -33,50 +39,46 @@ def open_popup():
 
 
 def add_item(event=None):
-    """insert item into next window in shopping cart"""
-    item = food_listbox.get(food_listbox.curselection())
-    if item:
-        shopping_Cart.insert('end', item)
+    """insert item into shopping cart"""
+    index = int(food_listbox.curselection()[0])
+    cart_foods.append(api_foods[index])  # put food obj in cart food list
+    shopping_Cart.insert('end', api_foods[index])  # add to listbox
 
 
 def delete_item(event=None):
-    """delete item in shopping cart"""
-    remove = shopping_Cart.curselection()
-    if remove:
-        shopping_Cart.delete(remove)
+    """delete item from shopping cart"""
+    index = int(shopping_Cart.curselection()[0])
+    cart_foods.pop(index)
+    shopping_Cart.delete(index)
 
 
 def expiration_date(event=None):
     """
     setting expiration dates
     """
-    if event:
-        # popup
-        popup = Toplevel(inventory)
-        popup.geometry("500x500")
-        popup.title("Expiration Date")
-        popup_label = Label(popup)
-        label_text = "Enter expiration date: "
-        popup_label.grid(row=1, column=2, padx=2, pady=2)
-        popup_label.config(text=label_text)
-        # date widget
-        expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
-                               foreground='white', borderwidth=2, year=2023)
-        expire_cal.grid(row=1, column=3, padx=2, pady=2)
 
-        # function to add date to item's str and close the pop on submit
-        def submit_and_close():
-            add_date(expire_cal.get())
-            popup.destroy()  # Close the popup
-        submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
-        submit_btn.grid(row=2, column=3, padx=2, pady=2)
+    # popup
+    popup = Toplevel(inventory)
+    popup.geometry("500x500")
+    popup.title("Expiration Date")
+    popup_label = Label(popup)
+    label_text = "Enter expiration date: "
+    popup_label.grid(row=1, column=2, padx=2, pady=2)
+    popup_label.config(text=label_text)
+    # date widget
+    expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
+                           foreground='white', borderwidth=2, year=2023)
+    expire_cal.grid(row=1, column=3, padx=2, pady=2)
 
-
-def add_date(date):
-    item = current_items.get(current_items.curselection()) + " " + date
-    index = current_items.curselection()
-    current_items.delete(index)
-    current_items.insert(index, item)
+    # function to set date for food item
+    def submit_and_close():
+        index = int(current_items.curselection()[0])
+        inventory_foods[index].setDate(expire_cal.get())  # get date chosen from calendar widget
+        current_items.delete(index)
+        current_items.insert(index, inventory_foods[index])
+        popup.destroy()  # Close the popup
+    submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
+    submit_btn.grid(row=2, column=3, padx=2, pady=2)
 
 
 def export_list():
@@ -85,12 +87,17 @@ def export_list():
     """
     for item in shopping_Cart.get(0, END):
         current_items.insert("end", item)
+    inventory_foods.extend(cart_foods)
+    cart_foods.clear()
     shopping_Cart.delete(0, tk.END)
     # TODO NOTIFY USER CART HAS BEEN SUBMITTED
 
 
 '''GUI Begins Here'''
 if __name__ == "__main__":
+    # store food objects
+    cart_foods = []
+    inventory_foods = []
     # Main window for application
     window = tk.Tk()
     window.title("Conscious Grocery Shopping")
@@ -107,6 +114,7 @@ if __name__ == "__main__":
 
 
     '''SEARCH TAB GUI'''
+    # TODO ADD 'ENTER' BUTTON FUNCTIONALITY FOR SEARCH BAR AND SUBMITTING EXPIRATION DATE
     parentTab.add(search_Tab, text='Search')
     # Food entry label config
     entry_Label = tk.Label(search_Tab, text="Enter Food Item: ")

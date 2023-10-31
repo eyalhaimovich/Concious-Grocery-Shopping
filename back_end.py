@@ -1,6 +1,5 @@
-import sys
 import requests
-import json
+
 """
 Define a food class and use API from https://fdc.nal.usda.gov/api-guide.html
 to find food items and retrieve food information
@@ -26,38 +25,56 @@ food_categories = ['All Categories', 'Baked Products', 'Beef Products', 'Beverag
                    'Poultry Products', 'Restaurant Foods', 'Sausages and Luncheon Meats', 'Soups, Sauces, and Gravies',
                    'Spices and Herbs', 'Sweets', 'Vegetables and Vegetable Products']
 
+
+
 class FoodItem:
     """
     params:
         str: name: food name = food description from database
         int: id: food id
         list of lists: macros [protein, fat, carbs, calories]
+        str: expiration date
     """
-    def __init__(self, name, id, macros):
+    def __init__(self, name, id, macros, date=''):
         self.name = name
         self.id = id
         self.macros = macros
+        self.date = date
+        # TODO ADD QUANTITY VARIABLE FOR MULTIPLE ITEMS
 
-    def __str__(self):
+    def getName(self):
         # clean up display for food names
+        max_length = 50
+        format_name = self.name
         if len(self.name) >= 30:
             last_word = self.name[30:].split(" ")[0]
-            self.name = self.name[:30] + last_word
-            if self.name[-1] == ",":
-                self.name = self.name[:-1]
-            self.name += '...'
-        food_entry = f"{self.name:<100}{round(self.macros[3])} Calories\n"
-        #food_entry = f"{self.name:<50}{self.macros[3]}\t{self.macros[0]}\t{self.macros[1]}\t{self.macros[2]}\n"
-        return food_entry
+            format_name = self.name[:30] + last_word
+            if format_name[-1] == ",":
+                format_name = format_name[:-1]
+            format_name += '...'
+        spacing = max_length - len(format_name)
+        return format_name + ' ' * spacing
+
+    def getCalories(self):
+        return self.macros[3]
+
+    def getDate(self):
+        return self.date
+
+    def setDate(self, date):
+        self.date = date
+
+    def __str__(self):
+        return self.getName() + (str(self.getCalories()) + ' ' * 10) + self.getDate()
 
 
-def callAPI(API_key, food_name, food_category = 'All Categories'):
+def callAPI(API_key, food_name, food_category='All Categories'):
     """
     call the FDC API using food ID/name and apiKey
     :param food_name: food name
     :param food_category: food_category = 'All'
     :param API_key: apiKey
-    :return: macroValues
+    :return: list of food items
     TODO Add parameter for 'foodCategory?'
     """
     # get data from USDA database
@@ -162,7 +179,7 @@ def filter_calories(food_items):
 
 def sort_food_category(food_items, food_category):
     """
-    only display items from specified foot category
+    only display items from specified food category
     :param food_category:
     :param food_items:
     """
@@ -217,8 +234,8 @@ def set_food_output(food_items, list_of_macros):
 
 '''
 # example eggplant from: https://fdc.nal.usda.gov/fdc-app.html#/food-details/2636702/nutrients
-food_name = "apple"
 
+food_name = "apple"
 # retrieve potential foods from food_name
 foodItem_list = callAPI(API_KEY, food_name, "Fruits and Fruit Juices")
 # foodItem_list = sorted(foodItem_list, key=lambda item: item.name)
@@ -230,3 +247,4 @@ for food in foodItem_list:
 # TODO make a more sophisticated print to show all nutrients for a specific item?
 # print(foodItem_list[0])
 '''
+
