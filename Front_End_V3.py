@@ -40,51 +40,61 @@ def open_popup():
 
 def add_item(event=None):
     """insert item into shopping cart"""
-    index = int(food_listbox.curselection()[0])
-    cart_foods.append(api_foods[index])  # put food obj in cart food list
-    shopping_Cart.insert('end', api_foods[index])  # add to listbox
+    if food_listbox.curselection():
+        index = int(food_listbox.curselection()[0])
+        cart_foods.append(api_foods[index])  # put food obj in cart food list
+        shopping_Cart.insert('end', api_foods[index])  # add to listbox
 
 
-def delete_item(event=None):
+def delete_item_from_cart(event=None):
     """delete item from shopping cart"""
-    index = int(shopping_Cart.curselection()[0])
-    cart_foods.pop(index)
-    shopping_Cart.delete(index)
+    if shopping_Cart.curselection():
+        index = int(shopping_Cart.curselection()[0])
+        cart_foods.pop(index)
+        shopping_Cart.delete(index)
 
 
-def expiration_date(event=None):
+def delete_item_from_inventory(event=None):
+    """delete item from shopping cart"""
+    if current_items.curselection():
+        index = int(current_items.curselection()[0])
+        inventory_foods.pop(index)
+        current_items.delete(index)
+
+
+def set_expiration_date(event=None):
     """
     setting expiration dates
     """
-
     # popup
-    popup = Toplevel(inventory)
-    popup.geometry("500x500")
-    popup.title("Expiration Date")
-    popup_label = Label(popup)
-    label_text = "Enter expiration date: "
-    popup_label.grid(row=1, column=2, padx=2, pady=2)
-    popup_label.config(text=label_text)
-    # date widget
-    expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
-                           foreground='white', borderwidth=2, year=2023)
-    expire_cal.grid(row=1, column=3, padx=2, pady=2)
+    if current_items.curselection():
+        popup = Toplevel(inventory)
+        popup.geometry("500x500")
+        popup.title("Expiration Date")
+        popup_label = Label(popup)
+        label_text = "Enter expiration date: "
+        popup_label.grid(row=1, column=2, padx=2, pady=2)
+        popup_label.config(text=label_text)
+        # date widget
+        expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
+                               foreground='white', borderwidth=2, year=2023)
+        expire_cal.grid(row=1, column=3, padx=2, pady=2)
 
-    # function to set date for food item
-    def submit_and_close():
-        index = int(current_items.curselection()[0])
-        inventory_foods[index].setDate(expire_cal.get())  # get date chosen from calendar widget
-        current_items.delete(index)
-        current_items.insert(index, inventory_foods[index])
-        popup.destroy()  # Close the popup
-    submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
-    submit_btn.grid(row=2, column=3, padx=2, pady=2)
-
+        # function to set date for food item
+        def submit_and_close():
+            index = int(current_items.curselection()[0])
+            inventory_foods[index].setDate(expire_cal.get())  # get date chosen from calendar widget
+            current_items.delete(index)
+            current_items.insert(index, inventory_foods[index])
+            popup.destroy()  # Close the popup
+        submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
+        submit_btn.grid(row=2, column=3, padx=2, pady=2)
 
 def export_list():
     """
     send items in cart to inventory and clear cart
     """
+    # TODO check if list is not empty
     for item in shopping_Cart.get(0, END):
         current_items.insert("end", item)
     inventory_foods.extend(cart_foods)
@@ -141,12 +151,12 @@ if __name__ == "__main__":
     # Cart Listbox
     shopping_Cart = Listbox(search_Tab, height=45, width=90)
     shopping_Cart.grid(row=2, column=3, rowspan=2, padx=10, pady=10)
-    shopping_Cart.bind("<Double 1>", delete_item)
+    shopping_Cart.bind("<Double 1>", delete_item_from_cart)
     # Button to add item to shopping cart
     add_item_btn = Button(search_Tab, text=">>>>>", command=add_item)
-    add_item_btn.grid(row=3, column=2, padx=10, pady=0, stick="n")
+    add_item_btn.grid(row=3, column=2, padx=10, pady=0, sticky="n")
     # Button to delete item from shopping cart
-    delete = Button(search_Tab, text="<<<<<", command=delete_item)
+    delete = Button(search_Tab, text="<<<<<", command=delete_item_from_cart)
     delete.grid(row=3, column=2, padx=10, pady=50, sticky="n")
     # send whole list to inventory
     export_btn = Button(search_Tab, text="Submit list to inventory", command=export_list)
@@ -155,14 +165,17 @@ if __name__ == "__main__":
     '''INVENTORY TAB GUI'''
     parentTab.add(inventory, text='Current Inventory')
     inventory_Title = ttk.Label(inventory, text="Your Current Pantry Items at Home")
-    inventory_Title.grid(row=1, rowspan=2, column=1, padx=5, pady=5)
+    inventory_Title.grid(row=1, column=1, padx=5, pady=5, sticky='w')
     # Currents items Listbox
     current_items = Listbox(inventory, height=45, width=90)
-    current_items.grid(row=2, column=1, padx=10, pady=10)
-    current_items.bind("<Double 1>", expiration_date)
+    current_items.grid(row=2, column=1, rowspan=2, padx=10, pady=10)
+    current_items.bind("<Double 1>", set_expiration_date)
     # expiration date button
-    expire_date_btn = Button(inventory, text="Set Expiration Date", command=expiration_date)
-    expire_date_btn.grid(row=2, column=2, padx=10, pady=10)
+    expire_date_btn = Button(inventory, text="Set Expiration Date", command=set_expiration_date)
+    expire_date_btn.grid(row=2, column=2, padx=10, pady=10, sticky='s')
+    # delete item button
+    del_from_inv_btn = Button(inventory, text="Delete item from Inventory", command=delete_item_from_inventory)
+    del_from_inv_btn.grid(row=3, column=2, padx=10, pady=10, sticky="n")
     #  display the tabs in the window
     parentTab.pack(expand=1, fill="both")
 
