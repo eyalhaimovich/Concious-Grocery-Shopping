@@ -95,7 +95,7 @@ def export_list():
     send items in cart to inventory and clear cart
     """
     # TODO check if list is not empty: COMPLETE
-    lb_size = current_items.size()
+    lb_size = shopping_Cart.size()
     if lb_size != 0:
         for item in shopping_Cart.get(0, END):
             current_items.insert("end", item)
