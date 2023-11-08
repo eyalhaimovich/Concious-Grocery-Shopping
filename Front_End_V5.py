@@ -94,15 +94,12 @@ def export_list():
     """
     send items in cart to inventory and clear cart
     """
-    # TODO check if list is not empty: COMPLETE
-    lb_size = shopping_Cart.size()
-    if lb_size != 0:
+    if shopping_Cart.size() != 0:
         for item in shopping_Cart.get(0, END):
             current_items.insert("end", item)
         inventory_foods.extend(cart_foods)
         cart_foods.clear()
         shopping_Cart.delete(0, tk.END)
-        # TODO NOTIFY USER CART HAS BEEN SUBMITTED
         messagebox.showinfo("Alert!", "Shopping cart submitted!")
     else:
         messagebox.showwarning("Warning!", "Shopping cart is empty!")

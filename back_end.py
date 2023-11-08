@@ -1,3 +1,4 @@
+import json
 import requests
 
 """
@@ -54,9 +55,15 @@ class FoodItem:
             format_name += '...'
         spacing = max_length - len(format_name)
         return format_name + ' ' * spacing
+    
+    def setName(self, name):
+        self.name = name
 
     def getCalories(self):
         return self.macros[3]
+    
+    def setCalories(self, macros):
+        self.macros = macros
 
     def getDate(self):
         return self.date
@@ -232,6 +239,60 @@ def set_food_output(food_items, list_of_macros):
         i += 1
     return list_of_foods
 
+
+def readInventory():
+    """
+    read the inventory file and return list of foods
+    if file doesn't exist, create it to prevent errors.
+    :return: foods a list of FoodItems
+    """
+    foods = []
+    path = 'inventory.csv'
+    try:
+        with open(path, 'r') as json_file:
+            data = json.load(json_file)
+        # Create FoodItem objects from the loaded data
+        foods = [FoodItem(item['name'], item['id'], 
+                               item['macros'], item['date']) for item in data]
+        return foods
+    
+    except:
+        # File doesn't exist, so create it
+        with open(path, 'w') as json_file:
+            pass
+        print("Inventory File created")
+        return foods
+    
+def writeToInventory(new_foods):
+    """
+    write food items to json
+    when submitting shopping cart button
+    """
+    foods = readInventory()
+    foods.append(new_foods)
+    with open('inventory.csv', 'w') as json_file:
+        json.dump([vars(item) for item in foods], json_file)
+
+def delFromInventory(index):
+    """
+    delete an item from inventory
+    when removing from inventory button
+    """
+    foods = readInventory()
+    if 0 < index < len(foods):
+        del foods[index]
+        writeToInventory(foods)
+
+def clearInventory():
+    """
+    clear the inventory
+    when clear inventory button
+    """
+    foods = []
+    with open('inventory.csv', 'w') as json_file:
+        json.dump([vars(item) for item in foods], json_file)
+
+
 '''
 # example eggplant from: https://fdc.nal.usda.gov/fdc-app.html#/food-details/2636702/nutrients
 
@@ -244,7 +305,5 @@ for food in foodItem_list:
     print(food, "\n")
 
 # print a chosen item in the list
-# TODO make a more sophisticated print to show all nutrients for a specific item?
 # print(foodItem_list[0])
 '''
-
