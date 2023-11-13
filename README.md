@@ -112,3 +112,29 @@ and keep history of previous groceries; allowing reuse for the next shopping tri
                 *** Possibly look into https://ttkbootstrap.readthedocs.io/en/latest/ 
                     https://www.youtube.com/watch?v=0tM-l_ZsxjU https://www.youtube.com/watch?v=wuO-KMwXhP4
             Make Python file into a .exe file
+## 10/13/23
+    COMPLETED:
+        Expiration dates
+        setters and getters for food variable
+        Use Json for inventory storage
+    NEXT TASKS:
+        Eyal:
+        Add quantity variable for Food Item
+            --If food id already in list when added, increase quantity instead
+            --If food removed, remove from quantity if quantity > 1
+        Get inventory saved into Json and retrived out of it
+            --Run upon start and whenever inventory_foods = [] list changes
+            --Make sure inventory_foods list is always aligned with Json file
+        Reminders for expiration dates. change colors for when expired/expiring in Inventory Listbox.
+            --Make Listbox Food Date yellow if expiration date is within 3 days
+            --Make Listbox Food Date red if expired
+
+        Maybe add piechart of macros
+        
+        Christina:
+        Figure out Bootstrap / aesthetic in general
+            --Themes
+        Package program in .exe
+            --(idea for converting app to setup wizard) https://www.youtube.com/watch?v=p3tSLatmGvU
+        Maybe change GUI to adjust in box
+
