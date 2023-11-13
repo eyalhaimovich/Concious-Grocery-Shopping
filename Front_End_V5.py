@@ -142,7 +142,6 @@ def write_csv():
     nested_list = []
     for i, foods in enumerate(inventory_foods):
         nested_list.append([inventory_foods[i].name, inventory_foods[i].date])
-    print(nested_list)
     with open('food_data_info.csv', 'w', newline='') as infile:
         # write list to csv
         writer = csv.writer(infile)
@@ -246,5 +245,5 @@ if __name__ == "__main__":
 
     #  display the tabs in the window
     parentTab.pack(expand=1, fill="both")
-    # load_data()
+    load_data()
     window.mainloop()
