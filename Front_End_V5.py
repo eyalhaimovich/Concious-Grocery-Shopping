@@ -5,10 +5,31 @@ from tkinter import ttk, messagebox
 from tkcalendar import Calendar, DateEntry
 from back_end import *
 from datetime import datetime
+import sqlite3
+import csv
+
 
 # get current day
 curr_day = datetime.now()
 curr_date = curr_day.strftime("%m/%d/%Y")
+
+
+def load_data():
+    """Load data from previous session into the inventory"""
+
+    # connect to database
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    current_items.delete(0, tk.END)
+    # Select items from database
+    cursor.execute("SELECT foodName, expiration FROM Food_Data")
+    # Fetch all items in query
+    items = cursor.fetchall()
+    # insert into current_items listbox
+    for row in items:
+        current_items.insert(tk.END, row)
+    conn.commit()
+    conn.close()
 
 
 def call_backend(event=None):
@@ -89,6 +110,44 @@ def set_expiration_date(event=None):
         submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
         submit_btn.grid(row=2, column=3, padx=2, pady=2)
         popup.bind('<Return>', submit_and_close)
+
+def insert_into_database():
+    """Create table and insert data into database"""
+    # open connection to database
+    conn = sqlite3.connect('data.db')
+    # Create table
+    table_create_query = ('CREATE TABLE IF NOT EXISTS Food_Data '
+                          '(foodName TEXT, expiration TEXT)')
+
+    conn.execute(table_create_query)
+    # create csv file
+    write_csv()
+    # read csv
+    file = open('food_data_info.csv')
+    contents = csv.reader(file)
+    # insert query
+    data_insert_query = 'INSERT INTO Food_Data(foodName, expiration) VALUES (?, ?)'
+    cursor = conn.cursor()
+    # insert multiple rows of data into database
+    cursor.executemany(data_insert_query, contents)
+    # commit changes to database
+    conn.commit()
+    # close connection to database
+    conn.close()
+
+
+def write_csv():
+    """turn the inventory_foods list into a csv"""
+    # nest inventory_foods into a list for sqlite
+    nested_list = []
+    for i, foods in enumerate(inventory_foods):
+        nested_list.append([inventory_foods[i].name, inventory_foods[i].date])
+    print(nested_list)
+    with open('food_data_info.csv', 'w', newline='') as infile:
+        # write list to csv
+        writer = csv.writer(infile)
+        writer.writerows(nested_list)
+
 
 def export_list():
     """
@@ -180,7 +239,12 @@ if __name__ == "__main__":
     # delete item button
     del_from_inv_btn = Button(inventory, text="Delete item from Inventory", command=delete_item_from_inventory)
     del_from_inv_btn.grid(row=3, column=2, padx=10, pady=10, sticky="n")
+
+    # button for creating csv file for data storage
+    csv_btn = Button(inventory, text="Save List", command=insert_into_database)
+    csv_btn.grid(row=3, column=3, padx=10, pady=10)
+
     #  display the tabs in the window
     parentTab.pack(expand=1, fill="both")
-
+    # load_data()
     window.mainloop()
