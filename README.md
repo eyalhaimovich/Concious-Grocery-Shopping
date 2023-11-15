@@ -119,10 +119,10 @@ and keep history of previous groceries; allowing reuse for the next shopping tri
         Use Json for inventory storage
     NEXT TASKS:
         Eyal:
-        Add quantity variable for Food Item
+        Add quantity variable for Food Item -- DONE
             --If food id already in list when added, increase quantity instead
             --If food removed, remove from quantity if quantity > 1
-        Get inventory saved into Json and retrived out of it
+        Get inventory saved into Json and retrived out of it -- DONE
             --Run upon start and whenever inventory_foods = [] list changes
             --Make sure inventory_foods list is always aligned with Json file
         Reminders for expiration dates. change colors for when expired/expiring in Inventory Listbox.

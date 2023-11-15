@@ -6,7 +6,7 @@ Define a food class and use API from https://fdc.nal.usda.gov/api-guide.html
 to find food items and retrieve food information
 """
 
-API_KEY = "jyAqilW3drrzghDxACXD2KhJmdDljsgC3NNaCcas" #https://fdc.nal.usda.gov/api-spec/fdc_api.html
+API_KEY = "jyAqilW3drrzghDxACXD2KhJmdDljsgC3NNaCcas"  # https://fdc.nal.usda.gov/api-spec/fdc_api.html
 
 #  all possible parameters for food search API
 """
@@ -27,7 +27,6 @@ food_categories = ['All Categories', 'Baked Products', 'Beef Products', 'Beverag
                    'Spices and Herbs', 'Sweets', 'Vegetables and Vegetable Products']
 
 
-
 class FoodItem:
     """
     params:
@@ -36,12 +35,13 @@ class FoodItem:
         list of lists: macros [protein, fat, carbs, calories]
         str: expiration date
     """
-    def __init__(self, name, id, macros, date=''):
+
+    def __init__(self, name, id, macros, date='', quantity=1):
         self.name = name
         self.id = id
         self.macros = macros
         self.date = date
-        # TODO ADD QUANTITY VARIABLE FOR MULTIPLE ITEMS
+        self.quantity = quantity
 
     def getName(self):
         # clean up display for food names
@@ -55,15 +55,18 @@ class FoodItem:
             format_name += '...'
         spacing = max_length - len(format_name)
         return format_name + ' ' * spacing
-    
+
     def setName(self, name):
         self.name = name
 
     def getCalories(self):
         return self.macros[3]
-    
+
     def setCalories(self, macros):
         self.macros = macros
+
+    def getId(self):
+        return self.id
 
     def getDate(self):
         return self.date
@@ -71,7 +74,20 @@ class FoodItem:
     def setDate(self, date):
         self.date = date
 
+    def getQuantity(self):
+        return self.quantity
+
+    def addQuantity(self, quatity):
+        self.quantity += quatity
+
+    def removeQuantity(self, quantity):
+        self.quantity -= quantity
+
     def __str__(self):
+        return (self.getName() + (str(self.getCalories()) + ' ' * 10)
+                + self.getDate() + ' ' * 10 + str(self.getQuantity()))
+
+    def APIprint(self):
         return self.getName() + (str(self.getCalories()) + ' ' * 10) + self.getDate()
 
 
@@ -82,7 +98,6 @@ def callAPI(API_key, food_name, food_category='All Categories'):
     :param food_category: food_category = 'All'
     :param API_key: apiKey
     :return: list of food items
-    TODO Add parameter for 'foodCategory?'
     """
     # get data from USDA database
     api_url = 'https://api.nal.usda.gov/fdc/v1/foods/search'
@@ -97,7 +112,8 @@ def callAPI(API_key, food_name, food_category='All Categories'):
             print(i['foodCategory'])'''
 
         # remove excess data keys, can adjust as needed
-        wanted_keys = ['description', 'fdcId', 'dataType', 'foodNutrients', 'foodCategory']  # keys holding useful information
+        wanted_keys = ['description', 'fdcId', 'dataType', 'foodNutrients',
+                       'foodCategory']  # keys holding useful information
         food_items = filter_food_items(data, wanted_keys)
 
         '''for i in food_items:
@@ -105,7 +121,8 @@ def callAPI(API_key, food_name, food_category='All Categories'):
                 print(j)'''
 
         # remove excess nutrient data from 'foodNutrients', can add vitamins etc. as needed
-        macro_names = ['Protein', 'Total lipid (fat)', 'Carbohydrate, by difference', 'Energy', 'Energy (Atwater General Factors)']
+        macro_names = ['Protein', 'Total lipid (fat)', 'Carbohydrate, by difference', 'Energy',
+                       'Energy (Atwater General Factors)']
         wanted_keys = ['nutrientId', 'nutrientName', 'unitName', 'value']  # keys holding useful information
         food_items = filter_nutrients(food_items, wanted_keys, macro_names)
         food_items = filter_calories(food_items)
@@ -214,13 +231,13 @@ def get_macros(food_items):
             value = eachDict['value']
             # unit = eachDict['unitName']
             if nutrient_name == 'Protein':
-                macro_values[0] = value  #  str(value) + ' ' + unit
+                macro_values[0] = value  # str(value) + ' ' + unit
             elif nutrient_name == 'Total lipid (fat)':
-                macro_values[1] = value  #  str(value) + ' ' + unit
+                macro_values[1] = value  # str(value) + ' ' + unit
             elif nutrient_name == 'Carbohydrate, by difference':
-                macro_values[2] = value  #  str(value) + ' ' + unit
+                macro_values[2] = value  # str(value) + ' ' + unit
             elif nutrient_name == 'Energy':
-                macro_values[3] = value  #  str(value) + ' ' + unit
+                macro_values[3] = value  # str(value) + ' ' + unit
         list_of_macros.append(macro_values)
 
     return list_of_macros
@@ -240,7 +257,7 @@ def set_food_output(food_items, list_of_macros):
     return list_of_foods
 
 
-def readInventory():
+def readJson():
     """
     read the inventory file and return list of foods
     if file doesn't exist, create it to prevent errors.
@@ -252,38 +269,39 @@ def readInventory():
         with open(path, 'r') as json_file:
             data = json.load(json_file)
         # Create FoodItem objects from the loaded data
-        foods = [FoodItem(item['name'], item['id'], 
-                               item['macros'], item['date']) for item in data]
+        foods = [FoodItem(item['name'], item['id'],
+                          item['macros'], item['date'],
+                          item['quantity']) for item in data]
         return foods
-    
+
     except:
         # File doesn't exist, so create it
         with open(path, 'w') as json_file:
             pass
         print("Inventory File created")
         return foods
-    
-def writeToInventory(new_foods):
+
+
+def writeToJson(new_foods):
     """
-    write food items to json
-    when submitting shopping cart button
+    write food items to json when click shopping cart button
     """
-    foods = readInventory()
-    foods.append(new_foods)
+    foods = new_foods
     with open('inventory.csv', 'w') as json_file:
         json.dump([vars(item) for item in foods], json_file)
 
-def delFromInventory(index):
+
+def delFromJson(index):
     """
-    delete an item from inventory
-    when removing from inventory button
+    delete an item from inventory when removing from inventory button
     """
-    foods = readInventory()
+    foods = readJson()
     if 0 < index < len(foods):
         del foods[index]
-        writeToInventory(foods)
+        writeToJson(foods)
 
-def clearInventory():
+
+def clearJson():
     """
     clear the inventory
     when clear inventory button
