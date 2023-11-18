@@ -112,6 +112,8 @@ def cart_to_inventory():
                     break
             if not in_inv:
                 inventory_food_listbox.insert("end", food)
+                color = set_expiration_status(food)
+                inventory_food_listbox.itemconfig('end', fg=color)
                 new_food = copy.deepcopy(food)
                 inventory_food_list.append(new_food)
 
@@ -127,6 +129,8 @@ def json_to_inventory():
     for food in foods:
         inventory_food_list.append(food)
         inventory_food_listbox.insert('end', food)
+        color = set_expiration_status(food)
+        inventory_food_listbox.itemconfig('end', fg=color)
 
 
 def delete_item_from_inventory(event=None):
@@ -169,10 +173,24 @@ def set_expiration_date(event=None):
             writeToJson(inventory_food_list)
             inventory_food_listbox.delete(index)
             inventory_food_listbox.insert(index, inventory_food_list[index])
+            color = set_expiration_status(inventory_food_list[index])
+            inventory_food_listbox.itemconfig(index, fg=color)
             popup.destroy()  # Close the popup
         submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
         submit_btn.grid(row=2, column=3, padx=2, pady=2)
         popup.bind('<Return>', submit_and_close)
+
+
+def set_expiration_status(food):
+    if food.getDate() != '':
+        food_date = datetime.strptime(food.getDate(), "%m/%d/%y").date()
+        difference = (food_date - datetime.now().date()).days
+
+        if difference < 0:
+            return 'red'
+        elif difference < 3:
+            return '#FFD700'
+    return 'black'
 
 
 def insert_into_database():
