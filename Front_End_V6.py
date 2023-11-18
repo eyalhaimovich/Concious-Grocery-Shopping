@@ -19,22 +19,6 @@ def call_backend(event=None):
    for food in api_foods:
       api_food_listbox.insert('end', food.APIprint())
 
-def open_popup():
-    """
-    creates pop up window
-    """
-    popup = Toplevel(search_Tab)
-    popup.geometry("400x200")
-    popup.title("Food Details")
-    show = Label(popup)
-    show.grid(row=1, column=2, padx=2, pady=2)
-    show.config(text=api_food_listbox.get(ANCHOR))
-    pop_btn = Button(popup, text="Add Item", command=add_item)
-    close_btn = Button(popup, text="Close", command=popup.destroy)
-    pop_btn.grid(row=2, column=2, padx=2.5, pady=5)
-    close_btn.grid(row=2, column=3, padx=2.5, pady=5)
-
-
 def set_expiration_date(event=None):
    """
    setting expiration dates
@@ -51,7 +35,7 @@ def set_expiration_date(event=None):
       # date widget
       #expire_cal = DateEntry(popup, width=12, background='DarkOrange4',
                              #foreground='white', borderwidth=2, year=2023)
-      expire_cal = tb.DateEntry(popup, dateformat="%m/%d/%Y", bootstyle='primary')
+      expire_cal = tb.DateEntry(popup, dateformat="%m/%d/%y", bootstyle='primary')
       expire_cal.grid(row=1, column=3, padx=2, pady=2)
 
       # function to set date for food item
@@ -61,6 +45,8 @@ def set_expiration_date(event=None):
          writeToJson(inventory_food_list)
          inventory_food_listbox.delete(index)
          inventory_food_listbox.insert(index, inventory_food_list[index])
+         color = set_expiration_status(inventory_food_list[index])
+         inventory_food_listbox.itemconfig(index, fg=color)
          popup.destroy()  # Close the popup
 
       submit_btn = tk.Button(popup, text="Submit Date", command=submit_and_close)
@@ -76,7 +62,7 @@ def set_expiration_status(food):
             return 'red'
         elif difference < 3:
             return '#FFD700'
-    return 'black'
+    return 'white'
 
 
 # -----Functions to control Inventory ------
@@ -98,7 +84,7 @@ def cart_to_inventory():
             if not in_inv:
                 inventory_food_listbox.insert("end", food)
                 color = set_expiration_status(food)
-                inventory_food_list.itemconfig('end', fg=color)
+                inventory_food_listbox.itemconfig('end', fg=color)
                 new_food = copy.deepcopy(food)
                 inventory_food_list.append(new_food)
 
@@ -174,7 +160,8 @@ inventory_food_list = []
 win = Window(themename='superhero')
 # Set the size of the window
 win.geometry("1280x760")
-win.resizable(0, 0)
+win.state("zoomed")
+# win.resizable(0, 0)
 # Add Frames
 frame = Frame(win)
 frame2 = Frame(win)
@@ -244,6 +231,7 @@ shopping_cart_label.grid(row=4, column=3, columnspan=2, pady=5)
 # Shopping Cart Listbox
 shopping_cart_listbox = Listbox(frame, height=25, width=48, font=14)
 shopping_cart_listbox.grid(row=5, column=3, padx=5, columnspan=2)
+shopping_cart_listbox.bind("<Double 1>", delete_item_from_cart)
 
 # Add item to cart button
 add_item_btn = Button(frame, text="Add Item to Cart", style='A.TButton', command=add_item )
@@ -267,6 +255,7 @@ inventory_Title.grid(row=0, column=1, columnspan=3, pady=15)
 # Current Items Listbox
 inventory_food_listbox = Listbox(frame2, height=30, width=55, font=16)
 inventory_food_listbox.grid(row=1, column=1, pady=15, rowspan=3)
+inventory_food_listbox.bind("<Double 1>", set_expiration_date)
 
 # Expiration date button
 expire_date_btn = tb.Button(frame2, text="Set Expiration Date", style='A.TButton',
