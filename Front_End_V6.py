@@ -68,6 +68,16 @@ def set_expiration_date(event=None):
       popup.bind('<Return>', submit_and_close)
 
 
+def set_expiration_status(food):
+    if food.getDate() != '':
+        food_date = datetime.strptime(food.getDate(), "%m/%d/%y").date()
+        difference = (food_date - datetime.now().date()).days
+        if difference < 0:
+            return 'red'
+        elif difference < 3:
+            return '#FFD700'
+    return 'black'
+
 
 # -----Functions to control Inventory ------
 def cart_to_inventory():
@@ -87,6 +97,8 @@ def cart_to_inventory():
                     break
             if not in_inv:
                 inventory_food_listbox.insert("end", food)
+                color = set_expiration_status(food)
+                inventory_food_list.itemconfig('end', fg=color)
                 new_food = copy.deepcopy(food)
                 inventory_food_list.append(new_food)
 
@@ -103,6 +115,8 @@ def json_to_inventory():
     for food in foods:
         inventory_food_list.append(food)
         inventory_food_listbox.insert('end', food)
+        color = set_expiration_status(food)
+        inventory_food_listbox.itemconfig('end', fg=color)
 
 
 def clear_inventory(event=None):
