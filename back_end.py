@@ -45,11 +45,11 @@ class FoodItem:
 
     def getName(self):
         # clean up display for food names
-        max_length = 50
+        max_length = 40
         format_name = self.name
-        if len(self.name) >= 30:
-            last_word = self.name[30:].split(" ")[0]
-            format_name = self.name[:30] + last_word
+        if len(self.name) >= 20:
+            last_word = self.name[20:].split(" ")[0]
+            format_name = self.name[:20] + last_word
             if format_name[-1] == ",":
                 format_name = format_name[:-1]
             format_name += '...'
@@ -60,7 +60,7 @@ class FoodItem:
         self.name = name
 
     def getCalories(self):
-        return self.macros[3]
+        return '{:3}'.format(int(self.macros[3]))
 
     def setCalories(self, macros):
         self.macros = macros
@@ -84,8 +84,8 @@ class FoodItem:
         self.quantity -= quantity
 
     def __str__(self):
-        return (self.getName() + (str(self.getCalories()) + ' ' * 10)
-                + self.getDate() + ' ' * 10 + str(self.getQuantity()))
+        return (self.getName() + self.getCalories() + ' ' * 10 +
+                str(self.getQuantity()) + ' ' * 10 + self.getDate())
 
     def APIprint(self):
         return self.getName() + (str(self.getCalories()) + ' ' * 10) + self.getDate()
@@ -134,7 +134,6 @@ def callAPI(API_key, food_name, food_category='All Categories'):
                 print(j)'''
 
         # get macro values for each food item
-        # TODO: Might want to add "unit" to macros later to have a list of floats instead of strings
         list_of_macros = get_macros(food_items)
 
         # combine name of food with its macros
@@ -310,6 +309,12 @@ def clearJson():
     with open('inventory.csv', 'w') as json_file:
         json.dump([vars(item) for item in foods], json_file)
 
+
+def food_exists(food_list, food_name):
+    for food in food_list:
+        if food.getName() == food_name:
+            return True
+    return False
 
 '''
 # example eggplant from: https://fdc.nal.usda.gov/fdc-app.html#/food-details/2636702/nutrients
