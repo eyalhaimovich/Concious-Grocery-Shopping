@@ -1,5 +1,7 @@
 # Import the Required libraries
 import copy
+import os
+import sys
 from tkinter import Listbox, messagebox
 import ttkbootstrap as tb
 from ttkbootstrap import datetime, END, Toplevel, Label, tk, Window, Frame, X, Style, Button
@@ -166,7 +168,9 @@ win.geometry("1920x1080")
 # win.resizable(0, 0)
 # set title and logo
 win.title("Conscious Grocery Shopping")
-# win.iconbitmap("icon.ico")
+temp_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+icon_path = os.path.join(temp_dir, 'icon.ico')
+win.iconbitmap(icon_path)
 # Add Frames
 frame = Frame(win)
 frame2 = Frame(win)
