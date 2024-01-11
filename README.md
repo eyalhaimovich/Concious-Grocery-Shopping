@@ -1,4 +1,4 @@
-# Concious Grocery Shopping - APCV498
+# Concious Grocery Shopping
 This project will develop a computer application for improving the grocery shopping experience. 
 The application will allow users to input foods and recipes into a shopping list. 
 Upon completion of the list, the app will show the nutrition provided by the shopping list.
